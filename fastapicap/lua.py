@@ -102,4 +102,48 @@ redis.call("PEXPIRE", key, expire_time)
 return allowed == 1 and 0 or retry_after
 """
 
+LEAKY_BUCKET = """
+local key = KEYS[1]
+local capacity = tonumber(ARGV[1])
+local leak_rate = tonumber(ARGV[2])
+local now = tonumber(ARGV[3])
+
+local bucket = redis.call("HMGET", key, "level", "last_leak")
+local level = tonumber(bucket[1]) or 0
+local last_leak =tonumber(bucket[2]) or now
+
+if level == nil then
+    level = 0
+    last_leak = now
+end
+
+local delta = math.max(0, now - last_leak)
+local leaked = delta * leak_rate
+level = math.max(0, level - leaked)
+last_leak = now
+
+local allowed = 0
+local retry_after = 0
+
+if (level + 1) <= capacity then
+    allowed = 1
+    level = level + 1
+else
+    allowed = 0
+    retry_after = math.ceil((level - capacity + 1) / leak_rate)
+    if retry_after < 1 then
+        retry_after = 1
+    end
+end
+
+local expire_time = math.ceil(capacity / leak_rate)
+if expire_time > 2147483647 then
+    expire_time = 2147483647
+end
+
+redis.call("HMSET", key, "level", level, "last_leak", last_leak)
+redis.call("PEXPIRE", key, expire_time)
+
+return allowed == 1 and 0 or retry_after
+"""
 
