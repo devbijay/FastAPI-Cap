@@ -56,3 +56,50 @@ end
 """
 
 
+TOKEN_BUCKET = """
+local key = KEYS[1]
+local capacity = tonumber(ARGV[1])
+local refill_rate = tonumber(ARGV[2])
+local now = tonumber(ARGV[3])
+
+local bucket = redis.call("HMGET", key, "tokens", "last_refill")
+local tokens = tonumber(bucket[1])
+local last_refill = tonumber(bucket[2])
+
+if tokens == nil then
+    tokens = capacity
+    last_refill = now
+end
+
+local delta = math.max(0, now - last_refill)
+local refill = 0
+if refill_rate > 0 then
+    refill = delta * refill_rate
+end
+tokens = math.min(capacity, tokens + refill)
+last_refill = now
+
+local allowed = 0
+local retry_after = 0
+
+if tokens >= 1 then
+    tokens = tokens - 1
+    allowed = 1
+else
+    allowed = 0
+    retry_after = math.ceil((1 - tokens) / refill_rate)
+end
+
+-- Cap the expire time to Redis max
+local expire_time = math.ceil(capacity / refill_rate)
+if expire_time > 2147483647 then
+    expire_time = 2147483647
+end
+
+redis.call("HMSET", key, "tokens", tokens, "last_refill", last_refill)
+redis.call("PEXPIRE", key, expire_time)
+
+return allowed == 1 and 0 or retry_after
+"""
+
+
