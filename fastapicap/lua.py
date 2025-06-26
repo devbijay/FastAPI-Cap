@@ -147,3 +147,42 @@ redis.call("PEXPIRE", key, expire_time)
 return allowed == 1 and 0 or retry_after
 """
 
+GCRA_LUA = """
+-- GCRA (Generic Cell Rate Algorithm) Lua script for Redis
+-- KEYS[1] = key
+-- ARGV[1] = burst (max tokens, integer)
+-- ARGV[2] = rate (tokens per millisecond, float)
+-- ARGV[3] = period (interval between tokens, in ms, float)
+-- ARGV[4] = now (current time in ms, integer)
+
+local key = KEYS[1]
+local burst = tonumber(ARGV[1])
+local rate = tonumber(ARGV[2])
+local period = tonumber(ARGV[3])
+local now = tonumber(ARGV[4])
+
+-- Theoretical Arrival Time (TAT)
+local tat = redis.call("GET", key)
+if tat then
+    tat = tonumber(tat)
+else
+    tat = now
+end
+
+-- The minimum spacing between requests
+local increment = period
+
+-- The earliest time this request can be allowed
+local new_tat = math.max(tat, now) + increment
+
+-- Allow if the request would not exceed the burst
+if new_tat - now <= burst * period then
+    -- Allowed: update TAT and set expiry
+    redis.call("SET", key, new_tat, "PX", math.ceil(burst * period))
+    return {1, 0}  -- allowed, no retry-after
+else
+    -- Not allowed: calculate retry-after
+    local retry_after = new_tat - (burst * period) - now
+    return {0, retry_after}
+end
+"""
