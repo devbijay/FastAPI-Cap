@@ -14,8 +14,8 @@ class SlidingWindowRateLimiter(BaseLimiter):
         minutes: int = 0,
         hours: int = 0,
         days: int = 0,
-        key_func: Optional[Callable] = None,
-        on_limit: Optional[Callable] = None,
+        key_func: Optional[Callable[[Request], str]] = None,
+        on_limit: Optional[Callable[[Request, Response, int], None]] = None,
         prefix: str = "cap",
     ):
         super().__init__(key_func=key_func, on_limit=on_limit, prefix=prefix)
@@ -31,7 +31,7 @@ class SlidingWindowRateLimiter(BaseLimiter):
 
     async def __call__(self, request: Request, response: Response):
         await self._ensure_lua_sha(self.lua_script)
-        key = await self.key_func(request)
+        key: str = await self._safe_call(self.key_func, request)
         redis = Cap.redis
         now_ms = int(time.time() * 1000)
         curr_window_start = now_ms - (now_ms % self.window_ms)
@@ -50,4 +50,4 @@ class SlidingWindowRateLimiter(BaseLimiter):
         allowed = result == 0
         retry_after = int(result / 1000) if not allowed else 0
         if not allowed:
-            await self.on_limit(request, response, retry_after)
+            await self._safe_call(self.on_limit, request, response, retry_after)

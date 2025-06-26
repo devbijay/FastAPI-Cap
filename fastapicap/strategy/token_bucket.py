@@ -15,8 +15,8 @@ class TokenBucketRateLimiter(BaseLimiter):
         tokens_per_minute: float = 0,
         tokens_per_hour: float = 0,
         tokens_per_day: float = 0,
-        key_func: Optional[Callable] = None,
-        on_limit: Optional[Callable] = None,
+        key_func: Optional[Callable[[Request], str]] = None,
+        on_limit: Optional[Callable[[Request, Response, int], None]] = None,
         prefix: str = "cap",
     ):
         super().__init__(key_func=key_func, on_limit=on_limit, prefix=prefix)
@@ -39,7 +39,7 @@ class TokenBucketRateLimiter(BaseLimiter):
 
     async def __call__(self, request: Request, response: Response):
         await self._ensure_lua_sha(self.lua_script)
-        key = await self.key_func(request)
+        key: str = await self._safe_call(self.key_func, request)
         redis = Cap.redis
         full_key = f"{self.prefix}:{self._instance_id}:{key}"
         now = int(time.time() * 1000)
@@ -54,4 +54,4 @@ class TokenBucketRateLimiter(BaseLimiter):
         allowed = result == 0
         retry_after = int(result) // 1000 if not allowed else 0
         if not allowed:
-            await self.on_limit(request, response, retry_after)
+            await self._safe_call(self.on_limit, request, response, retry_after)

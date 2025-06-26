@@ -22,7 +22,7 @@ class Cap:
 
     redis: Optional[Redis] = None
 
-    def __init__(self)-> None:
+    def __init__(self) -> None:
         """
         Prevent instantiation of Cap.
 
@@ -32,7 +32,7 @@ class Cap:
         raise RuntimeError("Use classmethods only; do not instantiate Cap.")
 
     @classmethod
-    async def init_app(cls, redis_url: str)-> None:
+    async def init_app(cls, redis_url: str) -> None:
         """
         Initialize the shared Redis connection for Cap.
 

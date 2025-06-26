@@ -115,7 +115,7 @@ class GCRARateLimiter(BaseLimiter):
                 other exceptions or handle the response differently.
         """
         await self._ensure_lua_sha(self.lua_script)
-        key = await self.key_func(request)
+        key: str = await self._safe_call(self.key_func, request)
         redis = Cap.redis
         full_key = f"{self.prefix}:{self._instance_id}:{key}"
         now = int(time.time() * 1000)

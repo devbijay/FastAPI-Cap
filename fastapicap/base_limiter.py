@@ -1,9 +1,10 @@
-from typing import Optional, Callable, TYPE_CHECKING
+import inspect
+from abc import ABC, abstractmethod
+from typing import Optional, Callable
 from .connection import Cap
+from fastapi import Request, Response
 
-
-
-class BaseLimiter:
+class BaseLimiter(ABC):
     """
     Abstract base class for all Cap rate limiters.
 
@@ -36,12 +37,14 @@ class BaseLimiter:
         on_limit: Optional[Callable] = None,
         prefix: str = "cap",
     ) -> None:
-        self.key_func = key_func or self._default_key_func
-        self.on_limit = on_limit or self._default_on_limit
-        self.prefix = prefix
-        self.lua_sha = None
+        self.key_func: Callable[[Request], str] = key_func or self._default_key_func
+        self.on_limit: Callable[[Request, Response, int], None] = (
+            on_limit or self._default_on_limit
+        )
+        self.prefix: str = prefix
+        self.lua_sha: Optional[str] = None
 
-    async def _ensure_lua_sha(self, lua_script: str)-> None:
+    async def _ensure_lua_sha(self, lua_script: str) -> None:
         """
         Ensure the Lua script is loaded into Redis and store its SHA1 hash.
 
@@ -52,8 +55,27 @@ class BaseLimiter:
             redis = Cap.redis
             self.lua_sha = await redis.script_load(lua_script)
 
+    # Helper method to safely call a function, whether sync or async
+    async def _safe_call(self, func: Callable, *args, **kwargs):
+        """
+        Safely calls a function, awaiting it if it's an asynchronous coroutine function,
+        or calling it directly if it's synchronous.
+
+        Args:
+            func (Callable): The function to call.
+            *args: Positional arguments to pass to the function.
+            **kwargs: Keyword arguments to pass to the function.
+
+        Returns:
+            Any: The result of the function call.
+        """
+        if inspect.iscoroutinefunction(func):
+            return await func(*args, **kwargs)
+        else:
+            return func(*args, **kwargs)
+
     @staticmethod
-    async def _default_key_func(request):
+    async def _default_key_func(request: Request) -> str:
         """
         Default key function: uses client IP and request path.
 
@@ -67,11 +89,11 @@ class BaseLimiter:
         if x_forwarded_for:
             client_ip = x_forwarded_for.split(",")[0].strip()
         else:
-            client_ip = request.client.host
+            client_ip = request.client.host if request.client else "unknown"
         return f"{client_ip}:{request.url.path}"
 
     @staticmethod
-    async def _default_on_limit(request, response, retry_after: int):
+    async def _default_on_limit(request, response, retry_after: int) -> None:
         """
         Default handler when the rate limit is exceeded.
 
@@ -85,3 +107,12 @@ class BaseLimiter:
             detail="Rate limit exceeded. Please try again later.",
             headers={"Retry-After": str(retry_after)},
         )
+
+    @abstractmethod  # Make __call__ abstract
+    async def __call__(self, request: Request, response: Response) -> None:
+        """
+        Abstract method that must be implemented by subclasses to define
+        the specific rate limiting logic. This method makes the limiter
+        callable, allowing it to be used as a FastAPI dependency or decorator.
+        """
+        pass

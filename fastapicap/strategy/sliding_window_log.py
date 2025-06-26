@@ -15,8 +15,8 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
         window_minutes: int = 0,
         window_hours: int = 0,
         window_days: int = 0,
-        key_func: Optional[Callable] = None,
-        on_limit: Optional[Callable] = None,
+        key_func: Optional[Callable[[Request], str]] = None,
+        on_limit: Optional[Callable[[Request, Response, int], None]] = None,
         prefix: str = "cap",
     ):
         super().__init__(key_func=key_func, on_limit=on_limit, prefix=prefix)
@@ -36,7 +36,7 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
 
     async def __call__(self, request: Request, response: Response):
         await self._ensure_lua_sha(self.lua_script)
-        key = await self.key_func(request)
+        key: str = await self._safe_call(self.key_func, request)
         redis = Cap.redis
         full_key = f"{self.prefix}:{self._instance_id}:{key}"
         now = int(time.time() * 1000)
@@ -52,4 +52,4 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
         allowed = result == 1
         retry_after = 0 if allowed else int(result)
         if not allowed:
-            await self.on_limit(request, response, retry_after)
+            await self._safe_call(self.on_limit, request, response, retry_after)
