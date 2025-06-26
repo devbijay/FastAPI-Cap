@@ -1,0 +1,88 @@
+site_name: FastAPI Cap
+repo_url: https://github.com/devbijay/FastAPI-Cap
+edit_uri: edit/main/docs/
+repo_name: FastAPI Cap
+site_url: https://devbijay.github.io/FastAPI-Cap
+
+
+extra_css:
+  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+
+  features:
+    - navigation.instant
+    - navigation.instant
+    - navigation.tabs
+    - navigation.top
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - content.action.view
+    - content.footnote.tooltips
+
+  font:
+    text: Roboto
+
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: pink
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: pink
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Quick Start: quickstart.md
+  - Strategies:
+      - Overview: strategies/overview.md
+      - Fixed Window: strategies/fixed_window.md
+      - Sliding Window: strategies/sliding_window.md
+      - Sliding Window (Log Based): strategies/sliding_window_log.md
+      - Token Bucket: strategies/token_bucket.md
+      - Leaky Bucket: strategies/leaky_bucket.md
+      - GCRA Rate Limiting: strategies/gcra.md
+  - API Reference: api.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/devbijay/FastAPI-Cap
+      name: GitHub
+  announcement:
+    type: info
+    text: "⭐️ Star FastAPI-Cap on [GitHub](https://github.com/devbijay/FastAPI-Cap)!"
+
+plugins:
+  - search:
+      lang: en
+      separator: '[\s\-\.]+'
+      pipeline:
+        - stemmer
+        - stopWordFilter
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            show_signature: true
+            show_root_heading: true
+            extra:
+              follow_wrapped: true
