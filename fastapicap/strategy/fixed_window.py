@@ -85,10 +85,10 @@ class RateLimiter(BaseLimiter):
                 with status code 429. Custom `on_limit` functions may raise
                 other exceptions or handle the response differently.
         """
+        redis = self._ensure_redis()
         await self._ensure_lua_sha(self.lua_script)
         key: str = await self._safe_call(self.key_func, request)
         full_key = f"{self.prefix}:{self._instance_id}:{key}"
-        redis = Cap.redis
         result = await redis.evalsha(
             self.lua_sha, 1, full_key, str(self.limit), str(self.window_ms)
         )

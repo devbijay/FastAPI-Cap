@@ -16,7 +16,7 @@ class Cap:
         redis: The shared aioredis Redis connection instance.
 
     Example:
-        await Cap.init_app("redis://localhost:6379/0")
+        Cap.init_app("redis://localhost:6379/0")
         # Now Cap.redis can be used by all limiters.
     """
 
@@ -32,7 +32,7 @@ class Cap:
         raise RuntimeError("Use classmethods only; do not instantiate Cap.")
 
     @classmethod
-    async def init_app(cls, redis_url: str) -> None:
+    def init_app(cls, redis_url: str) -> None:
         """
         Initialize the shared Redis connection for Cap.
 
@@ -40,6 +40,6 @@ class Cap:
             redis_url (str): The Redis connection URL.
 
         Example:
-            await Cap.init_app("redis://localhost:6379/0")
+            Cap.init_app("redis://localhost:6379/0")
         """
         cls.redis = aioredis.from_url(redis_url, decode_responses=True)

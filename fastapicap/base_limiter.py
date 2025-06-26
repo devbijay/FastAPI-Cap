@@ -1,6 +1,9 @@
 import inspect
 from abc import ABC, abstractmethod
 from typing import Optional, Callable
+
+from redis.asyncio import Redis
+
 from .connection import Cap
 from fastapi import Request, Response
 
@@ -116,3 +119,11 @@ class BaseLimiter(ABC):
         callable, allowing it to be used as a FastAPI dependency or decorator.
         """
         pass
+
+    def _ensure_redis(self) -> Redis:
+        if Cap.redis is None:
+            raise RuntimeError(
+                "Cap.redis is not initialized. "
+                "Call Cap.init_app(redis_url) before using any limiter."
+            )
+        return Cap.redis

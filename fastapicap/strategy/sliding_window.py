@@ -106,9 +106,9 @@ class SlidingWindowRateLimiter(BaseLimiter):
                 with status code 429. Custom `on_limit` functions may raise
                 other exceptions or handle the response differently.
         """
+        redis = self._ensure_redis()
         await self._ensure_lua_sha(self.lua_script)
         key: str = await self._safe_call(self.key_func, request)
-        redis = Cap.redis
         now_ms = int(time.time() * 1000)
         curr_window_start = now_ms - (now_ms % self.window_ms)
         prev_window_start = curr_window_start - self.window_ms

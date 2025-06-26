@@ -20,7 +20,7 @@ def redis_container():
 
 @pytest_asyncio.fixture(autouse=True)
 async def redis_ready(redis_container):
-    await Cap.init_app(redis_container)
+    Cap.init_app(redis_container)
     yield
 
 
