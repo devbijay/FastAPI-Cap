@@ -2,6 +2,8 @@
 name = "fastapi-cap"
 version = "0.1.0"
 description = "A robust, extensible, and production-ready rate limiting library for FastAPI, supporting multiple algorithms and Redis backend."
+readme = "README.md"
+license = "MIT"
 requires-python = ">=3.9"
 authors = [
     { name = "Bijay Nayak", email = "bijay6779@gmail.com" }
