@@ -1,7 +1,6 @@
 from typing import Optional, Callable
 from fastapi import Request, Response
 
-from ..connection import Cap
 from ..base_limiter import BaseLimiter
 from ..lua import FIXED_WINDOW
 
