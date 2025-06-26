@@ -186,3 +186,36 @@ else
     return {0, retry_after}
 end
 """
+
+
+SLIDING_LOG_LUA = """
+-- KEYS[1]: Redis key for the sorted set
+-- ARGV[1]: now (ms)
+-- ARGV[2]: window (ms)
+-- ARGV[3]: limit
+
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local window = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local min_time = now - window
+
+-- Remove old entries
+redis.call('ZREMRANGEBYSCORE', key, 0, min_time)
+
+-- Count current entries
+local count = redis.call('ZCARD', key)
+
+if count < limit then
+    -- Add this request
+    redis.call('ZADD', key, now, now)
+    -- Set expiry to window size
+    redis.call('PEXPIRE', key, window)
+    return 1
+else
+    -- Get the earliest timestamp in the window
+    local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')[2]
+    local retry_after = window - (now - tonumber(oldest))
+    return math.ceil(retry_after)
+end
+"""
