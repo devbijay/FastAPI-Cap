@@ -78,7 +78,6 @@ class LeakyBucketRateLimiter(BaseLimiter):
         )
         self.leak_rate = total_leaks / 1000
         self.lua_script = LEAKY_BUCKET
-        self._instance_id = f"leaky_bucket_limiter_{id(self)}"
 
     async def __call__(self, request: Request, response: Response):
         """
@@ -101,7 +100,7 @@ class LeakyBucketRateLimiter(BaseLimiter):
         redis = self._ensure_redis()
         await self._ensure_lua_sha(self.lua_script)
         key: str = await self._safe_call(self.key_func, request)
-        full_key = f"{self.prefix}:{self._instance_id}:{key}"
+        full_key = f"{self.prefix}:{key}"
         now = int(time.time() * 1000)
         result = await redis.evalsha(
             self.lua_sha,

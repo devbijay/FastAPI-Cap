@@ -65,7 +65,6 @@ class RateLimiter(BaseLimiter):
             + (days * 24 * 60 * 60 * 1000)
         )
         self.lua_script = FIXED_WINDOW
-        self._instance_id: str = f"fixed_window_limiter_{id(self)}"
 
     async def __call__(self, request: Request, response: Response):
         """
@@ -87,7 +86,7 @@ class RateLimiter(BaseLimiter):
         redis = self._ensure_redis()
         await self._ensure_lua_sha(self.lua_script)
         key: str = await self._safe_call(self.key_func, request)
-        full_key = f"{self.prefix}:{self._instance_id}:{key}"
+        full_key = f"{self.prefix}:{key}"
         result = await redis.evalsha(
             self.lua_sha, 1, full_key, str(self.limit), str(self.window_ms)
         )

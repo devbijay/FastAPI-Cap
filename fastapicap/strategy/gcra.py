@@ -91,7 +91,6 @@ class GCRARateLimiter(BaseLimiter):
         self.tokens_per_second = total_tokens_per_second
         self.period = 1000.0 / self.tokens_per_second
         self.lua_script = GCRA_LUA
-        self._instance_id = f"gcra_{id(self)}"
 
     async def __call__(self, request: Request, response: Response):
         """
@@ -116,7 +115,7 @@ class GCRARateLimiter(BaseLimiter):
         redis = self._ensure_redis()
         await self._ensure_lua_sha(self.lua_script)
         key: str = await self._safe_call(self.key_func, request)
-        full_key = f"{self.prefix}:{self._instance_id}:{key}"
+        full_key = f"{self.prefix}:{key}"
         now = int(time.time() * 1000)
         result = await redis.evalsha(
             self.lua_sha,

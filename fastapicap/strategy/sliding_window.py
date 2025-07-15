@@ -85,7 +85,6 @@ class SlidingWindowRateLimiter(BaseLimiter):
             + (days * 24 * 60 * 60 * 1000)
         )
         self.lua_script = SLIDING_WINDOW
-        self._instance_id = f"sliding_window_limiter_{id(self)}"
 
     async def __call__(self, request: Request, response: Response):
         """
@@ -112,8 +111,8 @@ class SlidingWindowRateLimiter(BaseLimiter):
         now_ms = int(time.time() * 1000)
         curr_window_start = now_ms - (now_ms % self.window_ms)
         prev_window_start = curr_window_start - self.window_ms
-        curr_key = f"{self.prefix}:{self._instance_id}:{key}:{curr_window_start}"
-        prev_key = f"{self.prefix}:{self._instance_id}:{key}:{prev_window_start}"
+        curr_key = f"{self.prefix}:{key}:{curr_window_start}"
+        prev_key = f"{self.prefix}:{key}:{prev_window_start}"
         result = await redis.evalsha(
             self.lua_sha,
             2,

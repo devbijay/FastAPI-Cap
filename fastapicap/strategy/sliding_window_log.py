@@ -86,7 +86,6 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
                 "Window must be positive (set seconds, minutes, hours, or days)"
             )
         self.lua_script = SLIDING_LOG_LUA
-        self._instance_id = f"sliding_log_{id(self)}"
 
     async def __call__(self, request: Request, response: Response):
         """
@@ -110,7 +109,7 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
         redis = self._ensure_redis()
         await self._ensure_lua_sha(self.lua_script)
         key: str = await self._safe_call(self.key_func, request)
-        full_key = f"{self.prefix}:{self._instance_id}:{key}"
+        full_key = f"{self.prefix}:{key}"
         now = int(time.time() * 1000)
         window_ms = self.window_seconds * 1000
         result = await redis.evalsha(

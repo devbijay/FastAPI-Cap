@@ -83,7 +83,6 @@ class TokenBucketRateLimiter(BaseLimiter):
         )
         self.refill_rate = total_tokens / 1000
         self.lua_script = TOKEN_BUCKET
-        self._instance_id = f"token_bucket_limiter_{id(self)}"
 
         if self.refill_rate <= 0:
             raise ValueError(
@@ -112,7 +111,7 @@ class TokenBucketRateLimiter(BaseLimiter):
         redis = self._ensure_redis()
         await self._ensure_lua_sha(self.lua_script)
         key: str = await self._safe_call(self.key_func, request)
-        full_key = f"{self.prefix}:{self._instance_id}:{key}"
+        full_key = f"{self.prefix}:{key}"
         now = int(time.time() * 1000)
         result = await redis.evalsha(
             self.lua_sha,
