@@ -125,8 +125,8 @@ async def test_gcra_prefix_isolation(redis_ready):
 
 @pytest.mark.asyncio
 async def test_gcra_multiple_limiters(redis_ready):
-    limiter1 = GCRARateLimiter(burst=1, tokens_per_second=0.1)
-    limiter2 = GCRARateLimiter(burst=2, tokens_per_second=0.1)
+    limiter1 = GCRARateLimiter(burst=1, tokens_per_second=0.1, prefix="limiter1")
+    limiter2 = GCRARateLimiter(burst=2, tokens_per_second=0.1, prefix="limiter2")
     request = DummyRequest()
     response = DummyResponse()
     await limiter1(request, response)  # Allowed

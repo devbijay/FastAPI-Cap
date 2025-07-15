@@ -130,8 +130,8 @@ async def test_leaky_bucket_prefix_isolation(redis_ready):
 
 @pytest.mark.asyncio
 async def test_leaky_bucket_multiple_limiters(redis_ready):
-    limiter1 = LeakyBucketRateLimiter(capacity=1, leaks_per_second=0)
-    limiter2 = LeakyBucketRateLimiter(capacity=2, leaks_per_second=0)
+    limiter1 = LeakyBucketRateLimiter(capacity=1, leaks_per_second=0, prefix="limiter1")
+    limiter2 = LeakyBucketRateLimiter(capacity=2, leaks_per_second=0, prefix="limiter2")
     request = DummyRequest()
     response = DummyResponse()
     await limiter1(request, response)  # Allowed

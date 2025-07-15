@@ -126,8 +126,8 @@ async def test_token_bucket_prefix_isolation(redis_ready):
 
 @pytest.mark.asyncio
 async def test_token_bucket_multiple_limiters(redis_ready):
-    limiter1 = TokenBucketRateLimiter(capacity=1, tokens_per_second=1)
-    limiter2 = TokenBucketRateLimiter(capacity=2, tokens_per_second=2)
+    limiter1 = TokenBucketRateLimiter(capacity=1, tokens_per_second=1, prefix="limiter1")
+    limiter2 = TokenBucketRateLimiter(capacity=2, tokens_per_second=2, prefix="limiter2")
     request = DummyRequest()
     response = DummyResponse()
     await limiter1(request, response)  # Allowed
