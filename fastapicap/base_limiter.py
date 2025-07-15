@@ -8,6 +8,16 @@ from .connection import Cap
 from fastapi import Request, Response
 
 
+def get_client_ip(request: Request) -> str:
+    """
+    Safely get the client's IP address, checking for X-Forwarded-For headers.
+    """
+    x_forwarded_for = request.headers.get("X-Forwarded-For")
+    if x_forwarded_for:
+        return x_forwarded_for.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 class BaseLimiter(ABC):
     """
     Abstract base class for all Cap rate limiters.
@@ -81,19 +91,18 @@ class BaseLimiter(ABC):
     @staticmethod
     async def _default_key_func(request: Request) -> str:
         """
-        Default key function: uses client IP and request path.
+        Default key function: uses client IP and endpoint identifier.
 
         Args:
             request: The incoming request object.
 
         Returns:
-            str: A unique key for the client and path.
+            str: A unique key for the client and endpoint.
         """
-        x_forwarded_for = request.headers.get("X-Forwarded-For")
-        if x_forwarded_for:
-            client_ip = x_forwarded_for.split(",")[0].strip()
-        else:
-            client_ip = request.client.host if request.client else "unknown"
+        client_ip = get_client_ip(request)
+        endpoint = request.scope.get("endpoint")
+        if endpoint:
+            return f"{client_ip}:{endpoint.__module__}:{endpoint.__name__}"
         return f"{client_ip}:{request.url.path}"
 
     @staticmethod
