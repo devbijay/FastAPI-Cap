@@ -9,7 +9,7 @@
 Install the package using pip:
 
 ```bash
-pip install fastapicap
+pip install fastapi-cap
 ```
 
 **Note**: You also need a running Redis instance. You can run one locally using Docker:
