@@ -4,10 +4,13 @@ from fastapicap import SlidingWindowLogRateLimiter
 
 
 class DummyRequest:
-    def __init__(self, path="/test", ip="1.2.3.4"):
+    def __init__(self, path="/test", ip="1.2.3.4", endpoint=None):
         self.headers = {}
         self.client = type("client", (), {"host": ip})()
         self.url = type("url", (), {"path": path})()
+        self.scope = {}
+        if endpoint is not None:
+            self.scope["endpoint"] = endpoint
 
 
 class DummyResponse:
