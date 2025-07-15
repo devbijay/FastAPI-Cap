@@ -29,7 +29,7 @@ class Cap:
         Raises:
             RuntimeError: Always, to enforce singleton usage.
         """
-        raise RuntimeError("Use classmethods only; do not instantiate Cap.")
+        raise RuntimeError("Use class methods only; do not instantiate Cap.")
 
     @classmethod
     def init_app(cls, redis_url: str) -> None:
