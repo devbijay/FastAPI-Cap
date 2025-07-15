@@ -59,6 +59,7 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
         to store and manage request timestamps, ensuring atomic operations
         for accurate rate limiting.
     """
+
     def __init__(
         self,
         limit: int,

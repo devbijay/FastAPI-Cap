@@ -7,6 +7,7 @@ from redis.asyncio import Redis
 from .connection import Cap
 from fastapi import Request, Response
 
+
 class BaseLimiter(ABC):
     """
     Abstract base class for all Cap rate limiters.

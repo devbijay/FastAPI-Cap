@@ -62,6 +62,7 @@ class SlidingWindowRateLimiter(BaseLimiter):
         The `retry_after` value provided by the Lua script indicates the
         approximate time in seconds until the next request might be allowed.
     """
+
     def __init__(
         self,
         limit: int,

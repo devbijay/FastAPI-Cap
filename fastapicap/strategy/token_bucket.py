@@ -58,6 +58,7 @@ class TokenBucketRateLimiter(BaseLimiter):
             calculated `refill_rate` is not positive. This ensures a valid
             configuration for the token bucket.
     """
+
     def __init__(
         self,
         capacity: int,

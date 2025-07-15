@@ -15,7 +15,8 @@ else
 end
 """
 
-SLIDING_WINDOW = """-- KEYS[1]: The key for the current window
+SLIDING_WINDOW = """
+-- KEYS[1]: The key for the current window
 -- KEYS[2]: The key for the previous window
 -- ARGV[1]: The current window timestamp (window start, in ms)
 -- ARGV[2]: The window size in ms

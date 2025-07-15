@@ -55,7 +55,7 @@ class RateLimiter(BaseLimiter):
         key_func: Optional[Callable[[Request], str]] = None,
         on_limit: Optional[Callable[[Request, Response, int], None]] = None,
         prefix: str = "cap",
-    )-> None:
+    ) -> None:
         super().__init__(key_func=key_func, on_limit=on_limit, prefix=prefix)
         self.limit = limit
         self.window_ms = (

@@ -54,6 +54,7 @@ class LeakyBucketRateLimiter(BaseLimiter):
             calculated `leak_rate` is not positive. This ensures a valid
             configuration for the leaky bucket.
     """
+
     def __init__(
         self,
         capacity: int,
