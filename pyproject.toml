@@ -47,6 +47,7 @@ dev = [
     "pytest-asyncio>=1.0.0",
     "pytest-xdist>=3.7.0",
     "testcontainers>=4.10.0",
+    "tox>=4.27.0",
 ]
 
 [build-system]
