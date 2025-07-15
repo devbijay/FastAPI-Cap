@@ -86,6 +86,7 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
                 "Window must be positive (set seconds, minutes, hours, or days)"
             )
         self.lua_script = SLIDING_LOG_LUA
+        self.prefix: str = f"{prefix}::{self.__class__.__name__}"
 
     async def __call__(self, request: Request, response: Response):
         """

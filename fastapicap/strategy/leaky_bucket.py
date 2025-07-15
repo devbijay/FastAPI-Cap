@@ -78,6 +78,7 @@ class LeakyBucketRateLimiter(BaseLimiter):
         )
         self.leak_rate = total_leaks / 1000
         self.lua_script = LEAKY_BUCKET
+        self.prefix: str = f"{prefix}::{self.__class__.__name__}"
 
     async def __call__(self, request: Request, response: Response):
         """

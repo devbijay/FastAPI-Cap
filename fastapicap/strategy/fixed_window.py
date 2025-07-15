@@ -65,6 +65,7 @@ class RateLimiter(BaseLimiter):
             + (days * 24 * 60 * 60 * 1000)
         )
         self.lua_script = FIXED_WINDOW
+        self.prefix: str = f"{prefix}::{self.__class__.__name__}"
 
     async def __call__(self, request: Request, response: Response):
         """

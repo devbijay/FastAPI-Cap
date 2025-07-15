@@ -83,6 +83,7 @@ class TokenBucketRateLimiter(BaseLimiter):
         )
         self.refill_rate = total_tokens / 1000
         self.lua_script = TOKEN_BUCKET
+        self.prefix: str = f"{prefix}::{self.__class__.__name__}"
 
         if self.refill_rate <= 0:
             raise ValueError(

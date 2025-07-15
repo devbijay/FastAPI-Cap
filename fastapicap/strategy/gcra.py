@@ -91,6 +91,7 @@ class GCRARateLimiter(BaseLimiter):
         self.tokens_per_second = total_tokens_per_second
         self.period = 1000.0 / self.tokens_per_second
         self.lua_script = GCRA_LUA
+        self.prefix: str = f"{prefix}::{self.__class__.__name__}"
 
     async def __call__(self, request: Request, response: Response):
         """
