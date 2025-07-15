@@ -19,7 +19,7 @@ It leverages Redis and optimized Lua scripts to provide a suite of industry-stan
 ## 📦 Installation
 
 ```bash
-pip install fastapicap
+pip install fastapi-cap
 ```
 
 You also need a running Redis instance.  
