@@ -99,6 +99,7 @@ extra_javascript:
 nav:
   - Home: index.md
   - Quick Start: quickstart.md
+  - Advance Guide: advanced.md
   - Strategies:
       - Overview: strategies/overview.md
       - Fixed Window: strategies/fixed_window.md

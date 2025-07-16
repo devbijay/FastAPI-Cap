@@ -88,25 +88,23 @@ This guide explains how to use and implement custom `on_limit` and `key_func` fu
 
 ### Default `key_func` Implementation
 
-By default, FastAPI Cap uses the client IP address and request path to generate a unique key for each client and endpoint.
+By default, FastAPI Cap uses the uses client IP and endpoint identifier to generate a unique key for each client and endpoint.
 
 ```python
-@staticmethod
-async def _default_key_func(request: Request) -> str:
-    """
-    Default key function: uses client IP and request path.
-    """
-    x_forwarded_for = request.headers.get("X-Forwarded-For")
-    if x_forwarded_for:
-        client_ip = x_forwarded_for.split(",")[0].strip()
-    else:
-        client_ip = request.client.host if request.client else "unknown"
-    return f"{client_ip}:{request.url.path}"
+  async def _default_key_func(request: Request) -> str:
+      client_ip = get_client_ip(request)
+      endpoint = request.scope.get("endpoint")
+      if endpoint:
+          return f"{client_ip}:{endpoint.__module__}:{endpoint.__name__}"
+      return f"{client_ip}:{request.url.path}"
 ```
-- **Parameters:**  
+**Parameters:**  
   - `request`: The FastAPI `Request` object.
-- **Returns:**  
-  - A string key in the format `client_ip:/path`.
+  
+**Returns:**
+
+  - String Key: {client_ip}:{endpoint.__module__}:{endpoint.__name__}
+  - E.g. 203.0.113.5:main:hello
 
 ### Default `on_limit` Implementation
 
