@@ -49,8 +49,6 @@ class SlidingWindowRateLimiter(BaseLimiter):
             The sliding window itself covers a period equivalent to `window_ms`.
         lua_script (str): The Lua script used for the approximated sliding
             window logic in Redis.
-        _instance_id (str): A unique identifier for this limiter instance, used
-            to create distinct Redis keys for isolation.
 
     Raises:
         ValueError: If the `limit` is not positive or if the calculated

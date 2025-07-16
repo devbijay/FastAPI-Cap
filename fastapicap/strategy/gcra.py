@@ -49,8 +49,6 @@ class GCRARateLimiter(BaseLimiter):
         tokens_per_second (float): The total calculated steady rate in tokens per second.
         period (float): The calculated time period (in milliseconds) between allowed tokens.
         lua_script (str): The Lua script used for GCRA logic in Redis.
-        _instance_id (str): A unique identifier for this limiter instance, used
-            to create distinct Redis keys.
 
     Raises:
         ValueError: If the total calculated `tokens_per_second` is not positive.

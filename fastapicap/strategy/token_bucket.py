@@ -50,8 +50,6 @@ class TokenBucketRateLimiter(BaseLimiter):
         refill_rate (float): The total calculated token refill rate in
             tokens per millisecond.
         lua_script (str): The Lua script used for token bucket logic in Redis.
-        _instance_id (str): A unique identifier for this limiter instance, used
-            to create distinct Redis keys for isolation.
 
     Raises:
         ValueError: If the `capacity` is not positive, or if the total

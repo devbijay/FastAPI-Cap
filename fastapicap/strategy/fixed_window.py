@@ -37,8 +37,6 @@ class RateLimiter(BaseLimiter):
         limit (int): The maximum requests allowed per window.
         window_ms (int): The calculated window size in milliseconds.
         lua_script (str): The Lua script used for fixed window logic in Redis.
-        _instance_id (str): A unique identifier for this limiter instance, used
-            to create distinct Redis keys.
 
     Raises:
         ValueError: If the `limit` is not positive or if the calculated

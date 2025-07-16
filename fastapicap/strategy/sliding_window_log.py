@@ -47,8 +47,6 @@ class SlidingWindowLogRateLimiter(BaseLimiter):
         window_seconds (int): The total calculated window size in seconds.
         lua_script (str): The Lua script used for the log-based sliding window
             logic in Redis.
-        _instance_id (str): A unique identifier for this limiter instance, used
-            to create distinct Redis keys for isolation.
 
     Raises:
         ValueError: If the `limit` is not positive or if the calculated

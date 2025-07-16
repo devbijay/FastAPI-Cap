@@ -46,8 +46,6 @@ class LeakyBucketRateLimiter(BaseLimiter):
         capacity (int): The configured maximum bucket capacity.
         leak_rate (float): The total calculated leak rate in requests per millisecond.
         lua_script (str): The Lua script used for leaky bucket logic in Redis.
-        _instance_id (str): A unique identifier for this limiter instance, used
-            to create distinct Redis keys for isolation.
 
     Raises:
         ValueError: If the `capacity` is not positive, or if the total
